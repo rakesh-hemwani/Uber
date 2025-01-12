@@ -17,10 +17,11 @@ public class Driver {
     @JoinColumn(name = "user_id")
     private User user;
 
-
     private Double rating;
 
     private Boolean isAvailable;
+
+    private String vehicleId;
 
     @Column(columnDefinition = "Geometry(Point, 4326)")
     Point currentLocation;
