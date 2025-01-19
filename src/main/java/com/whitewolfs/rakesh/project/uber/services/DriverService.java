@@ -9,11 +9,16 @@ import java.util.List;
 
 public interface DriverService {
     RideDTO cancelRide(Long rideId);
+
     RideDTO startRide(Long rideId);
+
     RideDTO endRide(Long rideId);
+
     RiderDTO rateRider(Long rideId, Integer rating);
+
     RideDTO acceptRide(Long rideId);
 
     DriverDTO getMyProfile();
+
     List<RideDTO> getAllMyRides();
 }

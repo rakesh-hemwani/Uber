@@ -13,9 +13,12 @@ public interface RideService {
     Ride getRideById(Long rideId);
 
     void matchWithDriver(RideRequestDTO rideRequestDTO);
+
     Ride createNewRide(RideRequestDTO rideRequestDTO, Driver driver);
 
     Ride updateRideStatus(Long rideId, RideStatus rideStatus);
+
     Page<Ride> getAllRideOfRider(Long riderID, PageRequest pageRequest);
+
     Page<Ride> getAllRideOfDriver(Long driverID, PageRequest pageRequest);
 }

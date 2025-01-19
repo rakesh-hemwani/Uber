@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 public interface AuthService {
     String login(String email, String password);
+
     UserDTO signup(SignupDTO signupDTO);
+
     DriverDTO obBoardNewDriver(Long userid);
 }

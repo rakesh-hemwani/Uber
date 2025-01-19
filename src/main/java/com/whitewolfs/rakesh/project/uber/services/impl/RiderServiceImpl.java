@@ -8,12 +8,11 @@ import com.whitewolfs.rakesh.project.uber.entities.RideRequest;
 import com.whitewolfs.rakesh.project.uber.entities.Rider;
 import com.whitewolfs.rakesh.project.uber.entities.User;
 import com.whitewolfs.rakesh.project.uber.entities.enums.RideRequestStatus;
+import com.whitewolfs.rakesh.project.uber.exceptions.ResourceNotFoundException;
 import com.whitewolfs.rakesh.project.uber.repositories.RideRequestRepository;
 import com.whitewolfs.rakesh.project.uber.repositories.RiderRepository;
 import com.whitewolfs.rakesh.project.uber.services.RiderService;
-import com.whitewolfs.rakesh.project.uber.strategies.DriverMatchingStartegy;
-import com.whitewolfs.rakesh.project.uber.strategies.RideFareStrategy;
-import com.whitewolfs.rakesh.project.uber.strategies.impl.RideFareDefaultFareCalculationStrategy;
+import com.whitewolfs.rakesh.project.uber.strategies.RideStrategyManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -24,12 +23,11 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RiderServiceImpl  implements RiderService {
+public class RiderServiceImpl implements RiderService {
 
     private final ModelMapper modelMapper;
-    private final RideFareStrategy rideFareStrategy;
+    private final RideStrategyManager rideStrategyManager;
     private final RideRequestRepository rideRequestRepository;
-    private final DriverMatchingStartegy driverMatchingStartegy;
     private final RiderRepository riderRepository;
 
     @Override
@@ -44,15 +42,18 @@ public class RiderServiceImpl  implements RiderService {
 
     @Override
     public RideRequestDTO requestRide(RideRequestDTO rideRequestDTO) {
-        RideRequest rideRequest = modelMapper.map(rideRequestDTO,RideRequest.class);
+
+        Rider rider = getCurrentRider();
+
+        RideRequest rideRequest = modelMapper.map(rideRequestDTO, RideRequest.class);
         rideRequest.setRideRequestStatus(RideRequestStatus.PENDING);
 
-        Double rideFare = rideFareStrategy.calculateFare(rideRequest);
+        Double rideFare = rideStrategyManager.rideFareStrategy().calculateFare(rideRequest);
         rideRequest.setFare(rideFare);
-        //log.info(rideRequest.toString());
+        // Todo : log.info(rideRequest.toString());
         RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);
 
-        driverMatchingStartegy.findMatchingDriver(savedRideRequest);
+        rideStrategyManager.driverMatchingStartegy(rider.getRating()).findMatchingDriver(savedRideRequest);
         return modelMapper.map(savedRideRequest, RideRequestDTO.class);
     }
 
@@ -74,5 +75,12 @@ public class RiderServiceImpl  implements RiderService {
                 .rating(0.0)
                 .build();
         return riderRepository.save(rider);
-    };
+    }
+
+    @Override
+    public Rider getCurrentRider() {
+        // Todo : Implement Spring Security
+        return riderRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException("Rider not found exception"));
+    }
+
 }
