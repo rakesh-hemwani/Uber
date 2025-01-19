@@ -30,4 +30,5 @@ public class RideRequestDTO {
     private PaymentMethod paymentMethod;
 
     private RideRequestStatus rideRequestStatus;
+
 }
